@@ -1,8 +1,5 @@
 from glob import glob
-from numpy.lib.shape_base import split
-from numpy.lib.utils import info
 import pandas as pd
-import shutil
 from joblib import Parallel, delayed
 from tqdm import tqdm
 from multiprocessing import cpu_count
@@ -77,7 +74,6 @@ def gen_matrix():
                 v = nodes.index(e[1])
                 mtx[u, v] += 1
         save_npz(mtx_path, mtx.tocsr())
-        exit()
 
     Parallel(N_JOBS)(delayed(create_mtx)(path, nodes) for path in tqdm(paths))
 
