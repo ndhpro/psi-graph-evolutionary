@@ -63,6 +63,9 @@ def gen_matrix():
     def create_mtx(path, nodes):
         md5 = path.split('/')[-1].replace('.txt', '')
         mtx_path = f'data/matrix/{md5}.npz'
+        if glob(mtx_path):
+            return
+
         mtx = dok_matrix((len(nodes), len(nodes)), dtype='int')
 
         with open(path, 'r') as f:
@@ -70,9 +73,10 @@ def gen_matrix():
         for line in lines[2:]:
             e = line.split()
             if len(e) == 2:
-                u = nodes.index(e[0])
-                v = nodes.index(e[1])
-                mtx[u, v] += 1
+                if e[0] in nodes and e[1] in nodes:
+                    u = nodes.index(e[0])
+                    v = nodes.index(e[1])
+                    mtx[u, v] += 1
         save_npz(mtx_path, mtx.tocsr())
 
     Parallel(N_JOBS)(delayed(create_mtx)(path, nodes) for path in tqdm(paths))
