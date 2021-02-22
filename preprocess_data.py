@@ -3,7 +3,7 @@ import pandas as pd
 from joblib import Parallel, delayed
 from tqdm import tqdm
 from multiprocessing import cpu_count
-from scipy.sparse import dok_matrix, save_npz
+from scipy.sparse import lil_matrix, save_npz
 from sklearn.model_selection import train_test_split
 
 N_JOBS = cpu_count()
@@ -45,10 +45,13 @@ def get_node_dict():
 
     outputs = Parallel(N_JOBS)(delayed(process_graph)(path)
                                for path in tqdm(paths))
-    nodes = set()
+    nodes = {}
     for output in outputs:
-        nodes.update(output)
-    pd.DataFrame({'nodes': list(nodes)}).to_csv(
+        for n in output:
+            nodes[n] = nodes.get(n, 0) + 1
+    sorted_nodes = sorted(
+        nodes.items(), key=lambda x: x[1], reverse=True)[:1000]
+    pd.DataFrame(sorted_nodes, columns=['nodes', 'freq']).to_csv(
         'data/nodes.csv', index=None)
 
 
@@ -62,11 +65,11 @@ def gen_matrix():
 
     def create_mtx(path, nodes):
         md5 = path.split('/')[-1].replace('.txt', '')
-        mtx_path = f'data/matrix/{md5}.npz'
+        mtx_path = f'data/mtx/{md5}.npz'
         if glob(mtx_path):
             return
 
-        mtx = dok_matrix((len(nodes), len(nodes)), dtype='int')
+        mtx = lil_matrix((len(nodes), len(nodes)), dtype='int')
 
         with open(path, 'r') as f:
             lines = f.readlines()
