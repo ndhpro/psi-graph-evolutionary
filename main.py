@@ -38,5 +38,23 @@ def run_ea():
                      for path in tqdm(test_paths))
 
 
+def get_res():
+    y_true = []
+    y_pred = []
+    res_paths = glob('results/detail/*.txt')
+    for path in tqdm(res_paths):
+        with open(path, 'r') as f:
+            lines = f.readlines()
+        try:
+            y_pred.append(int(lines[2].split('=')[-1]))
+            y_true.append(int(lines[3].split('=')[-1]))
+        except:
+            print(path)
+
+    print(confusion_matrix(y_true, y_pred))
+    print(classification_report(y_true, y_pred, digits=4))
+
+
 if __name__ == '__main__':
-    run_ea()
+    # run_ea()
+    get_res()
