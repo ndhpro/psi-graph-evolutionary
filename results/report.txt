@@ -1,0 +1,16 @@
+Classification report:
+              precision    recall  f1-score   support
+
+      benign     0.5983    0.9942    0.7471       863
+     malware     0.9984    0.8406    0.9127      3614
+
+    accuracy                         0.8702      4477
+   macro avg     0.7983    0.9174    0.8299      4477
+weighted avg     0.9212    0.8702    0.8808      4477
+
+roc auc: 0.9174
+fpr    : 0.0058
+
+Confusion matrix:
+[[ 858    5]
+ [ 576 3038]]

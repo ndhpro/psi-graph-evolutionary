@@ -2,7 +2,7 @@ from EA import Evolutionary
 import pandas as pd
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 from tqdm import tqdm
 from glob import glob
 
@@ -51,8 +51,21 @@ def get_res():
         except:
             print(path)
 
-    print(confusion_matrix(y_true, y_pred))
-    print(classification_report(y_true, y_pred, digits=4))
+    target_names = ['benign', 'malware']
+    cnf_matrix = confusion_matrix(y_true, y_pred)
+    clf_report = classification_report(
+        y_true, y_pred, target_names=target_names, digits=4)
+    tn, fp, fn, tp = cnf_matrix.ravel()
+    fpr = fp / (fp + tn)
+    roc_auc = roc_auc_score(y_true, y_pred)
+
+    with open('results/report.txt', 'w') as f:
+        f.write(f'Classification report:\n')
+        f.write(clf_report + '\n')
+        f.write('roc auc: %.4f\n' % roc_auc)
+        f.write('fpr    : %.4f\n\n' % fpr)
+        f.write(f'Confusion matrix:\n')
+        f.write(str(cnf_matrix))
 
 
 if __name__ == '__main__':
